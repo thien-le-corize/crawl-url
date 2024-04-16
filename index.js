@@ -18,7 +18,7 @@ app.post("/search", async (req, res) => {
   const payload = req.body;
   try {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: [
         "--disable-gpu",
         "--disable-dev-shm-usage",
