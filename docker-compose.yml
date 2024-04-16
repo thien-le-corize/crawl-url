@@ -6,3 +6,5 @@ services:
       - "3000:3000"
     volumes:
       - ./public:/usr/src/app/public
+    cap_add:
+      - SYS_ADMIN
