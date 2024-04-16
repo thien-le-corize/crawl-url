@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Search App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.repeater/1.2.1/jquery.repeater.min.js"></script>
+</head>
+
+<body>
+    <h1>Tìm kiếm trên Google và click vào các domain</h1>
+    <!-- outer repeater -->
+    <form class="repeater">
+        <div data-repeater-list="outer-list">
+            <div data-repeater-item>
+                <!-- innner repeater -->
+                <div class="inner-repeater" style="margin-top: 10px;">
+                    <div data-repeater-list="inner-list">
+                        <div data-repeater-item>
+                            <input type="text" name="process" class="process" placeholder="Từ khóa" />
+                            <input type="text" name="effort" class="effort" placeholder="Url" />
+                            <input data-repeater-delete type="button" class="btnDelete" value="Xóa" />
+                        </div>
+                    </div>
+                    <input data-repeater-create type="button" class="btnXacNhan" value="Thêm từ khóa mới"
+                        style="margin-top: 10px;" />
+                </div>
+
+            </div>
+        </div>
+        <p id="quatrinhTai" style="    font-weight: bold;
+        margin-left: 20px;
+        font-size: 23px;"></p>
+        <input type="button" id="startRun" class="btnXacNhan" value="Bắt đầu chạy"
+            style="margin-top: 10px; background: green;" />
+
+    </form>
+    <style>
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .warning {
+            color: orange;
+        }
+
+        input {
+            height: 40px;
+            border-radius: 10px;
+            box-shadow: none;
+            border: 1px solid #b4a8a8;
+            padding: 10px 20px;
+            margin: 20px;
+        }
+
+        .btnDelete {
+            background: red;
+            color: #fff;
+            font-weight: bold;
+            border: 0px;
+        }
+
+        .btnXacNhan {
+            margin-top: 10px;
+            background: #0068ff;
+            color: #fff;
+            font-weight: bold;
+            border: 0px;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $(".repeater").repeater({
+                // (Required if there is a nested repeater)
+                // Specify the configuration of the nested repeaters.
+                // Nested configuration follows the same format as the base configuration,
+                // supporting options "defaultValues", "show", "hide", etc.
+                // Nested repeaters additionally require a "selector" field.
+                repeaters: [
+                    {
+                        // (Required)
+                        // Specify the jQuery selector for this nested repeater
+                        selector: ".inner-repeater"
+                    }
+                ]
+            });
+        });
+
+    </script>
+    <script>
+        // Function to convert form data to JSON
+        function formToJson() {
+            var formData = []; // Array to store form data
+
+            // Selecting all elements with data-repeater-list attribute within the form
+            var outerItems = document.querySelectorAll('.repeater [data-repeater-list="outer-list"] [data-repeater-item]');
+
+            // Looping through each outer item
+            outerItems.forEach(function (outerItem) {
+                // Selecting all elements with data-repeater-list attribute within the current outer item
+                var innerItems = outerItem.querySelectorAll('[data-repeater-list="inner-list"] [data-repeater-item]');
+                var innerData = []; // Array to store inner data
+
+                // Looping through each inner item
+                innerItems.forEach(function (innerItem) {
+                    // Getting values of process and effort inputs
+                    var processValue = innerItem.querySelector('.process').value;
+                    var effortValue = innerItem.querySelector('.effort').value;
+
+                    // Creating an object with process and effort values
+                    var innerObj = {
+                        tukhoa: processValue,
+                        url: effortValue
+                    };
+
+                    // Pushing the inner object to innerData array
+                    innerData.push(innerObj);
+                });
+
+                // Pushing an object with innerData to formData array
+                formData.push(innerData);
+            });
+
+
+            $.ajax({
+                url: '/search', // Địa chỉ URL của endpoint bạn muốn gửi dữ liệu đến
+                type: 'POST', // Phương thức HTTP, có thể là 'POST' hoặc 'GET' tùy vào yêu cầu của bạn
+                contentType: 'application/json', // Loại dữ liệu sẽ gửi đi, ở đây là JSON
+                data: JSON.stringify(formData[0]), // Chuyển mảng thành chuỗi JSON trước khi gửi đi
+                beforeSend: function () {
+                    $("#quatrinhTai").html("Đang chạy dữ liệu, vui lòng đợi trong giây lát...");
+                    $("#quatrinhTai").addClass("warning");
+                },
+                success: function (response) {
+                    $("#quatrinhTai").html("Quá trình kết thúc...");
+                    $("#quatrinhTai").addClass("success");
+                    console.log('Success:', response);
+
+                },
+                error: function (xhr, status, error) {
+                    $("#quatrinhTai").html("Quá trình có lỗi...");
+                    $("#quatrinhTai").addClass("error");
+                    console.error('Error:', error);
+                }
+            });
+            // Logging the JSON data
+            console.log(formData[0]);
+        }
+
+        // Attaching event listener to the button
+
+        document.getElementById('startRun').addEventListener('click', formToJson);
+    </script>
+
+</html>
+</body>
+
+</html>
