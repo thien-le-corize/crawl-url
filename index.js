@@ -2,7 +2,7 @@ const express = require("express");
 const puppeteer = require("puppeteer");
 const bodyParser = require("body-parser");
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -102,6 +102,6 @@ const stepSearchKeyWord = async (pagePur, keyword, domain) => {
   }
 };
 
-app.listen(PORT, () => {
-  console.log(`Server đang chạy tại http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${PORT}`);
 });
