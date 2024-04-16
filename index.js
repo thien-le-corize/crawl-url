@@ -10,12 +10,15 @@ app.use(bodyParser.json());
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
+app.post("/testping", async (req, res) => {
+  res.send("Hello World!");
+});
 
 app.post("/search", async (req, res) => {
   const payload = req.body;
   try {
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       args: [
         "--disable-gpu",
         "--disable-dev-shm-usage",
