@@ -20,7 +20,7 @@ expressApp.post("/api/search", async (req, res) => {
     const proxyServer = payload.proxy;
     if (proxyServer) {
       const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: [
           "--proxy-server=" + proxyServer,
           "--disable-gpu",
@@ -49,7 +49,7 @@ expressApp.post("/api/search", async (req, res) => {
       res.send("Hoàn thành!");
     } else {
       const browser = await puppeteer.launch({
-        headless: false, // Set to true if you don't want to see the browser UI
+        headless: true, // Set to true if you don't want to see the browser UI
         args: [
           "--disable-gpu",
           "--disable-dev-shm-usage",
