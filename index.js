@@ -202,22 +202,9 @@ const stepSearchKeyWord = async (
   }
 };
 
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 1024,
-    height: 800,
-    webPreferences: {
-      nodeIntegration: true,
-    },
-  });
-
-  win.loadFile(__dirname + "/public/index.html");
-  expressApp.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server listening on port ${PORT}`);
-  });
-}
-
-app.whenReady().then(createWindow);
+expressApp.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${PORT}`);
+});
 // expressApp.listen(PORT, "0.0.0.0", () => {
 //   console.log(`Server listening on port ${PORT}`);
 // });
