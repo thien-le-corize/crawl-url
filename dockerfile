@@ -1,6 +1,7 @@
-# Sử dụng image chứa Node.js 18
+# Use Node.js 18 image
 FROM node:18
 
+# Install necessary dependencies for Puppeteer and other libraries
 RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
@@ -23,19 +24,28 @@ RUN apt-get update && apt-get install -y \
     libgbm-dev \
     libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
-    
-# Tạo thư mục ứng dụng trong container
+
+# Install Chrome (Chromium) to be used by Puppeteer
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable
+
+# Set environment variable to point to the installed Chrome binary
+ENV CHROME_BIN=/usr/bin/google-chrome
+
+# Set up the working directory for the application
 WORKDIR /usr/src/app
 
-# Sao chép package.json và package-lock.json nếu có và cài đặt dependencies
+# Copy package.json and package-lock.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Sao chép các file ứng dụng vào thư mục làm việc
+# Copy application files
 COPY . .
 
-# Mở cổng mặc định của ứng dụng
+# Expose default port
 EXPOSE 3000
 
-# Chạy ứng dụng
+# Run the application
 CMD ["node", "index.js"]
