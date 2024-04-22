@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <h1>Tìm kiếm trên Google và click vào các domain</h1>
+    <h1 style="text-align: center;">SITE CHECKINGS</h1>
     <!-- outer repeater -->
     <form class="repeater">
         <div data-repeater-list="outer-list">
@@ -18,9 +18,13 @@
                 <!-- innner repeater -->
                 <div class="inner-repeater" style="margin-top: 10px;">
                     <div data-repeater-list="inner-list">
-                        <div data-repeater-item>
+                        <div data-repeater-item class="listRP">
+                            <input type="text" name="proxy" class="proxy" placeholder="proxy" />
                             <input type="text" name="process" class="process" placeholder="Từ khóa" />
-                            <input type="text" name="effort" class="effort" placeholder="Url" />
+                            <input type="text" name="effort" class="effort" placeholder="Url 1" />
+                            <input type="text" name="effort" class="effort1" placeholder="Url 2" />
+                            <input type="text" name="timeout" class="timeout" placeholder="Thời gian delay" />
+                            <input type="text" name="speed" class="speed" placeholder="Tốc độ chuột" />
                             <input data-repeater-delete type="button" class="btnDelete" value="Xóa" />
                         </div>
                     </div>
@@ -35,28 +39,57 @@
         font-size: 23px;"></p>
         <input type="button" id="startRun" class="btnXacNhan" value="Bắt đầu chạy"
             style="margin-top: 10px; background: green;" />
-
+        <div id="dataTest"></div>
     </form>
     <style>
+        .inner-repeater {
+            background: #f5f5f5;
+            border-radius: 20px;
+            padding: 20px !important;
+        }
+
+        .repeater {
+            max-width: 90%;
+            margin: auto;
+        }
+
+        .listRP {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
         .success {
-            color: green;
+            background: green;
         }
 
         .error {
-            color: red;
+            background: red;
         }
 
         .warning {
-            color: orange;
+            background: orange;
         }
 
         input {
-            height: 40px;
+            height: 20px;
             border-radius: 10px;
             box-shadow: none;
             border: 1px solid #b4a8a8;
             padding: 10px 20px;
-            margin: 20px;
+            margin: 0px;
+            margin-bottom: 10px;
+        }
+
+        .listRP input {
+            flex-basis: 15%;
+            /* margin: 0 5px; */
+            width: 15%;
+            /* Có thể điều chỉnh khoảng cách giữa các input */
+        }
+
+        input[type='button'] {
+            height: 40px;
         }
 
         .btnDelete {
@@ -94,6 +127,7 @@
 
     </script>
     <script>
+
         // Function to convert form data to JSON
         function formToJson() {
             var formData = []; // Array to store form data
@@ -111,46 +145,54 @@
                 innerItems.forEach(function (innerItem) {
                     // Getting values of process and effort inputs
                     var processValue = innerItem.querySelector('.process').value;
-                    var effortValue = innerItem.querySelector('.effort').value;
+                    var url1 = innerItem.querySelector('.effort').value;
+                    var url2 = innerItem.querySelector('.effort1').value;
+                    var timeoutCT = innerItem.querySelector('.timeout').value;
+                    var speedCT = innerItem.querySelector('.speed').value;
+                    var proxy = innerItem.querySelector('.proxy').value;
 
                     // Creating an object with process and effort values
                     var innerObj = {
                         tukhoa: processValue,
-                        url: effortValue
+                        url1: url1,
+                        url2: url2,
+                        timeout: timeoutCT,
+                        speedCT: speedCT,
+                        proxy: proxy
                     };
-
-                    // Pushing the inner object to innerData array
-                    innerData.push(innerObj);
+                    run(innerObj, innerItem);
                 });
 
                 // Pushing an object with innerData to formData array
                 formData.push(innerData);
             });
 
+            function run(data, innerItem) {
+                $.ajax({
+                    url: 'http://autobotgoogle.onrender.com/api/search', // Địa chỉ URL của endpoint bạn muốn gửi dữ liệu đến
+                    type: 'POST', // Phương thức HTTP, có thể là 'POST' hoặc 'GET' tùy vào yêu cầu của bạn
+                    contentType: 'application/json', // Loại dữ liệu sẽ gửi đi, ở đây là JSON
+                    data: JSON.stringify(data), // Chuyển mảng thành chuỗi JSON trước khi gửi đi
+                    beforeSend: function () {
+                        innerItem.querySelector('.btnDelete').value = "Đang chạy...";
+                        innerItem.querySelector('.btnDelete').classList.add("warning");
+                    },
+                    success: function (response) {
+                        innerItem.querySelector('.btnDelete').classList.add("Đã xong");
+                        innerItem.querySelector('.btnDelete').classList.remove("warning");
+                        innerItem.querySelector('.btnDelete').classList.add("success");
+                        console.log('Success:', response);
 
-            $.ajax({
-                url: '/search', // Địa chỉ URL của endpoint bạn muốn gửi dữ liệu đến
-                type: 'POST', // Phương thức HTTP, có thể là 'POST' hoặc 'GET' tùy vào yêu cầu của bạn
-                contentType: 'application/json', // Loại dữ liệu sẽ gửi đi, ở đây là JSON
-                data: JSON.stringify(formData[0]), // Chuyển mảng thành chuỗi JSON trước khi gửi đi
-                beforeSend: function () {
-                    $("#quatrinhTai").html("Đang chạy dữ liệu, vui lòng đợi trong giây lát...");
-                    $("#quatrinhTai").addClass("warning");
-                },
-                success: function (response) {
-                    $("#quatrinhTai").html("Quá trình kết thúc...");
-                    $("#quatrinhTai").addClass("success");
-                    console.log('Success:', response);
+                    },
+                    error: function (xhr, status, error) {
+                        innerItem.querySelector('.btnDelete').value = "Lỗi";
+                        innerItem.querySelector('.btnDelete').classList.remove("warning");
+                        innerItem.querySelector('.btnDelete').classList.add("error");
+                        console.error('Error:', error);
+                    }
+                });
+            }
 
-                },
-                error: function (xhr, status, error) {
-                    $("#quatrinhTai").html("Quá trình có lỗi...");
-                    $("#quatrinhTai").addClass("error");
-                    console.error('Error:', error);
-                }
-            });
-            // Logging the JSON data
-            console.log(formData[0]);
         }
 
         // Attaching event listener to the button
